@@ -1,15 +1,20 @@
 package tn.esprit.examen.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import tn.esprit.examen.entities.Staff;
 import tn.esprit.examen.repositories.StaffRepository;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class StaffService implements IStaffService{
+public class StaffService implements IStaffService , UserDetailsService {
   private  final StaffRepository staffRepository;
   public Staff createStaff(Staff staff) {
     return staffRepository.save(staff);
@@ -35,4 +40,15 @@ public class StaffService implements IStaffService{
     staffRepository.deleteById(id);
   }
 
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    Staff staff = staffRepository.findByEmail(username)
+      .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+    return new org.springframework.security.core.userdetails.User(
+      staff.getEmail(),
+      staff.getPassword(),
+      Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + staff.getRoleStaff().name()))
+    );
+  }
 }

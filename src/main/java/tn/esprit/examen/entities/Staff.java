@@ -17,7 +17,7 @@ public class Staff {
   @Id
   private String idStaff;
   private String NameStaff;
-  private String Email;
+  private String email;
   private LocalDate birthdate;
   private String address;
   private Integer phoneNumber;
